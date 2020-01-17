@@ -5,3 +5,5 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+#For YuyaL
+/.vscode/
