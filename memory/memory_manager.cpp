@@ -4,7 +4,7 @@
 #include<iostream>
 
 const unsigned int block_size = 16;
-const unsigned int num_block = 1024;
+const unsigned int num_block = 256;
 unsigned char user_runtime_space[block_size*num_block] = { 0 };
 unsigned char allocation_map[num_block / 8] = { 0 };
 unsigned char allocation_continue_map[num_block / 8] = { 0 };
@@ -37,24 +37,26 @@ void set_allocated(unsigned int block_index,unsigned int num_needed_block) {
 	}
 }
 
+void clear_block(unsigned int block_index) {
+	//move char value through one block.
+	for (unsigned char *cleaner = (unsigned char*)(user_runtime_space + block_size*block_index)
+		; cleaner < user_runtime_space + block_size*(block_index + 1)
+		; cleaner ++) {
+		*cleaner = 0;
+	}
+}
+
 void set_free(unsigned int block_index) {
 	for (; block_index < num_block; block_index++) {
 		unsigned int map_i = block_index_to_map_i(block_index);
 		unsigned int bit_i = block_index_to_bit_i(block_index);
 		allocation_map[map_i] &= ~(1 << bit_i);
-		if (!allocation_continue_map[map_i] & (1 << bit_i))break;//一連のアロケーション区間は終了した、
+		clear_block(block_index);
+		bool b = allocation_continue_map[map_i] & (1 << bit_i);
+		if (!(allocation_continue_map[map_i] & (1 << bit_i)))break;//一連のアロケーション区間は終了した、
 		allocation_continue_map[map_i] &= ~(1 << bit_i);
 	}
 	
-}
-
-void clear_block(unsigned int block_index) {
-	//1つのBlock全体をcharを移動させながら0にする。
-	for (unsigned char *cleaner = (unsigned char*)(user_runtime_space + block_size*block_index)
-		; cleaner < user_runtime_space + block_size*(block_index + 1)
-		; cleaner += 1) {
-		*cleaner = 0;
-	}
 }
 
 void* memory_allocate(unsigned int size) {
@@ -85,7 +87,6 @@ void memory_free(void * ptr)
 {
 	unsigned int block_index = ((int)ptr - (int)user_runtime_space) / block_size;
 	set_free(block_index);
-	clear_block(block_index);
 	ptr = NULL;
 }
 
