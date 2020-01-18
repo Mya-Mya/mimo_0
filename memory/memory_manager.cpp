@@ -4,7 +4,7 @@
 #include<iostream>
 
 const unsigned int block_size = 16;
-const unsigned int num_block = 64;
+const unsigned int num_block = 1024;
 unsigned char user_runtime_space[block_size*num_block] = { 0 };
 unsigned char allocation_map[num_block / 8] = { 0 };
 unsigned char allocation_continue_map[num_block / 8] = { 0 };
@@ -112,12 +112,21 @@ void memory_show_usage_overview()
 {
 	std::cout << "Total block : " << num_block << " blocks" << std::endl;
 	unsigned int num_allocated_block=0;
+	unsigned int num_allocation_continued_block = 0;
 
 	for (unsigned int block_index = 0; block_index < num_block; block_index++) {
 		unsigned int map_i = block_index_to_map_i(block_index);
 		unsigned int bit_i = block_index_to_bit_i(block_index);
 		if (allocation_map[map_i] & (1 << bit_i))num_allocated_block++;
+		if (allocation_continue_map[map_i] & (1 << bit_i))num_allocation_continued_block++;
 	}
 	std::cout << "Allocated block : " << num_allocated_block << " blocks" << std::endl;
+	std::cout << "Allocation time : " << num_allocated_block - num_allocation_continued_block << " times" << std::endl;
 	std::cout << "Free block : " << num_block - num_allocated_block << " blocks" << std::endl;
+}
+
+void memory_show_informations()
+{
+	std::cout << "Size : " << block_size << " byte/block" << std::endl;
+	std::cout << "Total block : " << num_block << " blocks" << std::endl;
 }
