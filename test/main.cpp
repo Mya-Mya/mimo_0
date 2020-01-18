@@ -2,6 +2,7 @@
 #include<time.h>
 
 #include"list_structure.h"
+#include"../tool/array/udlist.h"
 #include"../memory/memory_manager.h"
 int main() {
 	//memory test
@@ -9,15 +10,15 @@ int main() {
 	time(&now);
 	srand(now);
 
-	undir_list_t*head = NULL;
-	undir_list_t*tail = NULL;
+	udlist*head = NULL;
 
 	memory_show_informations();
 	while (true) {
 		//Show elements.
 		int index = 0;
-		for (undir_list_t*itr = head; itr != NULL; itr = itr->next) {
-			std::cout << "[" << index << "]" << (int)itr->value<<" ";
+		for (udlist*itr = head; itr != NULL; itr = itr->next) {
+			int* value = (int*)itr->value;
+			std::cout << "[" << index << "]" << *value<<" ";
 			index++;
 		}
 		std::cout << std::endl;
@@ -30,25 +31,23 @@ int main() {
 		{
 		case'a'://Add new element.
 		{
-			int random_value = 1 + rand() % 100;
+			int *random_value = (int*)memory_allocate(sizeof(int));
+			if (!random_value)abort();
+			*random_value = (1 + rand() % 100);
 			if (head == NULL) {
-				head = (undir_list_t*)memory_allocate(sizeof(undir_list_t));
-				head->value = (int*)random_value;
-				head->next = NULL;
-				tail = head;
+				head = (udlist*)memory_allocate(sizeof(udlist));
+				head->value = random_value;
 			}
 			else {
-				undir_list_t *new_elem = (undir_list_t*)memory_allocate(sizeof(undir_list_t));
-				new_elem->value = (int*)random_value;
-				new_elem->next = NULL;
-				tail->next = new_elem;
-				tail = new_elem;
+				udlist *new_elem = (udlist*)memory_allocate(sizeof(udlist));
+				new_elem->value = random_value;
+				udlist_add(head, new_elem);
 			}
 		}
 			break;
 		case'd'://Delete element.
 		{
-			if (head == NULL) {
+			if (!head) {
 				std::cout << "No elements exist.";
 				break;
 			}
@@ -56,26 +55,15 @@ int main() {
 			int index = 0;
 			std::cin >> index;
 			if (index == 0) {
-				undir_list_t*new_head = head->next;
+				udlist*new_head = head->next;
 				memory_free(head);
 				head = new_head;
 			}
 			else {
-				undir_list_t *one_before_target = head;
-				for (int i = 0; i < index - 1; i++) {
-					if (one_before_target == NULL)break;
-					one_before_target = one_before_target->next;
-				}
-				if (one_before_target == NULL || one_before_target->next == NULL) {
-					std::cout << "Such element doesn't exist." << std::endl;
+				udlist*target=udlist_delete_at(head, index);
+				if (!target) {
+					std::cout << "Such element not found." << std::endl;
 					break;
-				}
-				undir_list_t *target = one_before_target->next;
-				undir_list_t *one_after_target = target->next;
-				one_before_target->next = one_after_target;
-				//if the last element is deleted, we need to chage tail.
-				if (one_after_target == NULL) {
-					tail = one_before_target;
 				}
 				memory_free(target);
 			}
