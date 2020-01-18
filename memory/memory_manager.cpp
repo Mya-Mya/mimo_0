@@ -4,7 +4,7 @@
 #include<iostream>
 
 const unsigned int block_size = 16;
-const unsigned int num_block = 256;
+const unsigned int num_block = 2018;
 unsigned char user_runtime_space[block_size*num_block] = { 0 };
 unsigned char allocation_map[num_block / 8] = { 0 };
 unsigned char allocation_continue_map[num_block / 8] = { 0 };

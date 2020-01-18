@@ -1,10 +1,14 @@
 #include<iostream>
 #include<time.h>
 
+#include"../shell/shell_parser.h"
+int main() {
+	shell_parse(" repeat  ha ya -t 20 10 -f -q -c zzz");
+}
+
 #include"../tool/array/udlist.h"
 #include"../memory/memory_manager.h"
-int main() {
-	//memory test
+void memory_test() {
 	time_t now;
 	time(&now);
 	srand(now);
@@ -17,7 +21,7 @@ int main() {
 		int index = 0;
 		for (udlist*itr = head; itr != NULL; itr = itr->next) {
 			int* value = (int*)itr->value;
-			std::cout << "[" << index << "]" << *value<<" ";
+			std::cout << index << "|" << *value<<" ";
 			index++;
 		}
 		std::cout << std::endl;
@@ -55,6 +59,7 @@ int main() {
 			std::cin >> index;
 			if (index == 0) {
 				udlist*new_head = head->next;
+				memory_free(head->value);
 				memory_free(head);
 				head = new_head;
 			}
@@ -64,6 +69,7 @@ int main() {
 					std::cout << "Such element not found." << std::endl;
 					break;
 				}
+				memory_free(target->value);
 				memory_free(target);
 			}
 		}
