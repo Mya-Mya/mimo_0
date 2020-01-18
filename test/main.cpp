@@ -1,7 +1,6 @@
 #include<iostream>
 #include<time.h>
 
-#include"list_structure.h"
 #include"../tool/array/udlist.h"
 #include"../memory/memory_manager.h"
 int main() {
